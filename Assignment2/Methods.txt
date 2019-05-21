@@ -1,0 +1,274 @@
+/*Item_class.cpp*/
+
+class Item
+{
+	private:
+		int ID;
+		int QUANT;
+		char LABEL[10];
+		
+	public:
+		Item();
+		Item(int id, int quant, char label[]); // Constructor
+		//Item(const Item &i);
+		int getId();
+		int getQuant();
+		void getLabel(char *s);	
+		void setId(int i){
+			ID = i;
+		}
+		void setQuant(int q)
+		{
+			QUANT = q;
+		}
+		void setLabel(char l[]);
+		void printDetails();
+};
+
+/*Item_methods.cpp*/
+
+#include <string.h>
+Item::Item()
+{
+	ID = -1;
+	QUANT = -1;
+	LABEL[0] = '\0';	
+}
+
+Item::Item(int id, int quant, char label[])
+{
+	/* cout is not declared in this scope!!! How to fix this? :/ */
+	/*cout << "* Enter the item ID: ";  
+	cin >> ID;
+	cout << "\n* Enter the Quantity: ";
+	cin >> QUANT;
+	cout << "\n* Enter the Label of Item: ";
+	cin >> LABEL;
+	cout << "********************************" << endl;*/
+	ID = id;
+	QUANT = quant;
+	strcpy(LABEL, label);
+}
+
+/*Item::Item(const Item &i)
+{
+	setId(i.getId());
+	setQuant(i.getQuant());
+	char temp[10];
+	i.getLabel(temp);
+	setLabel(temp);
+}*/
+
+int Item::getId()
+{
+	return ID;
+}
+
+int Item::getQuant()
+{
+	return QUANT;
+}
+
+void Item::getLabel(char *s)
+{
+	strcpy(s, LABEL);
+}
+
+void Item::setLabel(char l[])
+{
+	strcpy(LABEL, l);
+}
+
+/* Stack_class.cpp*/
+
+#include <string>
+class Stack
+{
+	private:
+		Item* array; // Changes to be made here
+		int top;
+		int size;
+		int length;
+	public:
+		Stack(int len);
+		int getTop();
+		bool isEmpty();
+		void push(int id, int quant, char label[]);
+		void push(Item i);
+		Item pop();
+		Item peek();
+		void display();
+		void Sort(Stack& s);         		//
+		void SortedInsert(Stack& s, Item i); // 
+		int Size();
+		int getLength();
+};
+/*   Exception Handling Classes! Work to be done here.    */
+class StackFullException
+{
+	private:
+		//char errMessage[14] = "Stack is FULL!";
+		std::string errMessage = "Stack is FULL!";
+	public:
+		/*StackFullException(string msg)
+		{
+			errMessage = msg;	
+		}*/
+		std::string getErrorMessage()
+		{
+			return errMessage;	
+		}	
+};
+
+class StackEmptyException
+{
+	private:
+		//char errMessage[15] = "Stack is EMPTY!";
+		std::string errMessage = "Stack is EMPTY!";
+	public:
+		/*StackEmptyException(string msg)
+		{
+			errMessage = msg	
+		}*/
+		std::string getErrorMessage()
+		{
+			return errMessage;
+		}	
+};
+
+/*Stack_methods.cpp*/
+
+#include <iostream>
+using namespace std;
+Stack::Stack(int len)
+{
+	array = new Item[len];
+	top = -1;
+	size = 0;
+	length = len;
+}
+
+int Stack::getTop()
+{
+	return top;
+}
+
+bool Stack::isEmpty()
+{
+	bool retval = false;
+	if(top == -1)
+	{
+		retval = true;
+	}
+	return retval;
+}
+
+void Stack::push(int id, int quant, char label[])
+{
+	Item x(id, quant, label);
+	if(top < length)
+	{
+		top++;
+		array[top] = x;
+		size++;
+	}
+	else
+	{
+	    StackFullException ex;
+		throw ex;
+		//throw "Stack is Full";	
+	}	
+}
+void Stack::push(Item i)
+{
+	if(top < length)
+	{
+		array[top++] = i;
+		size++;
+	}
+	else
+	{
+		StackFullException ex;
+		throw ex;
+	}
+}
+Item Stack::pop()
+{
+	if(!isEmpty())
+	{
+		Item popped = array[top];
+		top--;
+		size--;
+		return popped;
+    }
+    else
+    {
+    	StackEmptyException ex;
+    	throw ex;
+    	//throw "Stack is Empty!";
+	}
+}
+
+Item Stack::peek()
+{
+	return array[top];
+}
+
+void Stack::display()
+{
+	int j = 0;
+	char temp[10];
+	for(int i = top; i >= 0; i--)
+	{
+		cout << "Item No: " << ++j << endl;
+		cout << "Item ID: " << array[i].getId() << endl;
+		cout << "Item Quantity: " << array[i].getQuant() << endl; 
+		array[i].getLabel(temp);
+		cout << "Item Label: " << temp << endl;
+		cout << "************************************" << endl;
+	}
+}
+void Stack::Sort(Stack &S)
+{
+	if(!S.isEmpty())
+	{
+		Item p = S.pop();
+		cout << "popped one thing: ID: " << p.getId() << " Quantity: " << p.getQuant() << endl;
+		S.Sort(S);
+		S.SortedInsert(S, p);
+	}	
+}
+
+void Stack::SortedInsert(Stack &S, Item i)
+{
+	if(S.isEmpty() || i.getQuant() > S.peek().getQuant())
+	{
+		S.push(i);
+		cout << "Pushed one thing: ID: " << i.getId() << " Quantity: " << i.getQuant() << endl;
+		return;
+	}
+	else
+	{
+		Item temp = S.pop();
+		S.SortedInsert(S, i);
+		S.push(temp);
+	}
+}
+int Stack::Size()
+{
+	return size;
+}
+
+int Stack::getLength()
+{
+	return length;
+}
+
+void Item::printDetails()
+{
+	cout << "------------------------------\n";
+	cout << "Item ID: " << ID << endl;
+	cout << "Item Quantity: " << QUANT << endl;
+	cout << "Item Label: " << LABEL << endl;
+	cout << "------------------------------\n";
+}
